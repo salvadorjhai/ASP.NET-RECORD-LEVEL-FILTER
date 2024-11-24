@@ -2,7 +2,7 @@
 
 
 @{
-    ViewBag.Title = "Sample List";
+    ViewBag.Title = "Product List";
 }
 
 <main>
@@ -11,7 +11,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4><span class="fas fa-tags fs-6"></span> @ViewBag.Title</h4> (view, add, edit)
+                    <h4><span class="fas fa-tags fs-6"></span> @ViewBag.Title <small>(view, add, edit)</small> </h4>
                 </div>
                 <div class="card-body">
 
@@ -86,7 +86,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <div class="btn-group d-flex">
+                        <div class="btn-group d-flex" id="js-level-update">
                             <button id="" type="button" class="btn btn-danger"><span class="far fa-thumbs-up"></span> Back to level</button>
                             <button id="" type="button" class="btn btn-warning"><span class="far fa-thumbs-up"></span> Submit for checking</button>
                         </div>
@@ -182,6 +182,19 @@
             onLevelFilterClicked_Handler()
         }
 
+        function updateNextLevelDisplay() {
+            // js-level-update
+            if (window._seldata == null) {
+                return;
+            }
+            if (window._seldata.statuslvl == null) {
+                return;
+            }
+
+
+
+        }
+
     </script>
 
     <script>
@@ -225,7 +238,7 @@
             //    statuslvl: page_permission.active_filter
             //}
 
-            //dtProduct.ajax.url("/home/LoadProducts?q=" + JSON.stringify(q)).load(function (json) {
+            //dtProduct.ajax.url("/product/LoadProducts?q=" + JSON.stringify(q)).load(function (json) {
             //    dtProductData = json.data
             //    // add other function to be called after table reloads
             //    dtProduct.columns.adjust();
@@ -244,7 +257,7 @@
             dtProduct = $('#ProductTable').DataTable({
                 stateSave: true,
                 ajax: {
-                    "url": "/home/LoadProducts?q=" + JSON.stringify(q),
+                    "url": "/product/LoadProducts?q=" + JSON.stringify(q),
                     "type": "GET",
                     datatype: "json",
                     error: function (errormessage) {
@@ -298,7 +311,7 @@
         function showEditProductModal(id) {
 
             $.ajax({
-                url: "/home/getbyid/?id=" + id,
+                url: "/product/getbyid/?id=" + id,
                 type: "GET",
                 contentType: "application/json;charset=UTF-8",
                 dataType: "json",
