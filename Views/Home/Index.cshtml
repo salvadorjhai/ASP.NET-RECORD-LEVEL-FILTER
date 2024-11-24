@@ -1,0 +1,395 @@
+﻿@model WebAppTemplate.Models.Product
+
+
+@{
+    ViewBag.Title = "Sample List";
+}
+
+<main>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><span class="fas fa-tags fs-6"></span> @ViewBag.Title</h4> (view, add, edit)
+                </div>
+                <div class="card-body">
+
+                    <div class="row mb-2" id="js-level-filter" style="display:none">
+                        <div class="col-12">
+                            <div class="btn-group" role="group" aria-label="status level filter">
+                                <button type="button" class="btn btn-outline-primary" data-filter="1">Draft <span class="badge bg-secondary">0</span></button>
+                                <button type="button" class="btn btn-outline-primary" data-filter="2">For Checking <span class="badge bg-warning">0</span></button>
+                                <button type="button" class="btn btn-outline-primary" data-filter="3">Checked <span class="badge bg-warning">0</span></button>
+                                <button type="button" class="btn btn-outline-primary" data-filter="9">Approved <span class="badge bg-success">0</span></button>
+                                <button type="button" class="btn btn-outline-danger" data-filter="5">Cancelled/Deleted <span class="badge bg-danger">0</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-icon icon-left btn-primary text-uppercase mb-3" onclick="showProductModal()"><span class="fas fa-plus-square"></span> Add New Record</button>
+                        <button type="button" class="btn btn-icon icon-left btn-warning text-uppercase mb-3"><span class="fas fa-plus-square"></span> Reports </button>
+                    </div>
+
+                    <table class="table table-hover table-sm" id="ProductTable" style="width:100%">
+                        <thead>
+                            <tr class="bg-primary text-white text-uppercase">
+                                <th>ID</th>
+                                <th>PRODUCTNAME</th>
+                                <th>PRODUCTDESCRIPTION</th>
+                                <th>PRODUCTCATEGORY</th>
+                                <th>PRODUCTCATEGORYDESCRIPTION</th>
+                                <th>PRODUCTPRICE</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bg-opacity-75" id="ProductModal" role="dialog" data-bs-focus="false" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ProductModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-uppercase text-light p-3">
+                    <h5 class="modal-title"> </h5>
+                </div>
+                <form id="ProductForm" autocomplete="off" dirty-checker>
+                    <div class="modal-body">
+                        <input type="hidden" id="id" name="id" value="-1">
+                        <div class="mb-2">
+                            @Html.LabelFor(m => m.ProductName, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ProductName, new { @class = "form-control", @placeholder = Html.DisplayNameFor(m => m.ProductName) })
+                            @Html.ValidationMessageFor(m => m.ProductName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-2">
+                            @Html.LabelFor(m => m.ProductDescription, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ProductDescription, new { @class = "form-control", @placeholder = Html.DisplayNameFor(m => m.ProductDescription) })
+                            @Html.ValidationMessageFor(m => m.ProductDescription, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-2">
+                            @Html.LabelFor(m => m.ProductCategory, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ProductCategory, new { @class = "form-control", @placeholder = Html.DisplayNameFor(m => m.ProductCategory) })
+                            @Html.ValidationMessageFor(m => m.ProductCategory, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-2">
+                            @Html.LabelFor(m => m.ProductCategoryDescription, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ProductCategoryDescription, new { @class = "form-control", @placeholder = Html.DisplayNameFor(m => m.ProductCategoryDescription) })
+                            @Html.ValidationMessageFor(m => m.ProductCategoryDescription, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-2">
+                            @Html.LabelFor(m => m.ProductPrice, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ProductPrice, new { @type = "number", @class = "form-control", @Value = "0" })
+                            @Html.ValidationMessageFor(m => m.ProductPrice, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group d-flex">
+                            <button id="" type="button" class="btn btn-danger"><span class="far fa-thumbs-up"></span> Back to level</button>
+                            <button id="" type="button" class="btn btn-warning"><span class="far fa-thumbs-up"></span> Submit for checking</button>
+                        </div>
+
+                        <button id="btnSave_ProductModal" type="button" class="btn btn-success"><span class="far fa-thumbs-up"></span> SAVE</button>
+                        <button id="btnClose_ProductModal" type="button" class="btn btn-danger" onclick="$('#ProductModal').modal('toggle')"><span class="far fa-thumbs-down"></span> CLOSE</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+@section scripts{
+
+    <script>
+
+        var page_permission = {
+            pagecode: `page-001`,
+            default_level: 1,
+            level1: 1,
+            level2: 1,
+            level3: 1,
+            level4: 1,
+            level5: 1,
+
+            level1_text: `Pending`,
+            level2_text: `For Checking`,
+            level3_text: `Checked`,
+            level4_text: `Approved`,
+            level5_text: `Cancelled/Deleted`,
+
+            level1_count: 10,
+            level2_count: 0,
+            level3_count: 1,
+            level4_count: 5,
+            level5_count: 0,
+        }
+
+    </script>
+
+    <script>
+
+        function initActionFilter() {
+            // check if page have action filter
+            $(`#js-level-filter`)[0].hidden = true;
+
+            //
+            $(`#js-level-filter`).find('button[data-filter]').on('click', function (e) {
+                onLevelFilterClicked(e.currentTarget.dataset.filter)
+            });
+
+            // check if page have action filter
+            if (page_permission.default_level > 0) {
+                $(`#js-level-filter`)[0].hidden = false;
+                $(`#js-level-filter`)[0].style = null;
+                // check if buttons are visible
+                $(`#js-level-filter`).find(`button[data-filter=1]`)[0].hidden = !(page_permission.level1 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=1]`).html(`${page_permission.level1_text} <span class="badge bg-secondary">${page_permission.level1_count}</span>`)
+
+                $(`#js-level-filter`).find(`button[data-filter=2]`)[0].hidden = !(page_permission.level2 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=2]`).html(`${page_permission.level2_text} <span class="badge bg-warning">${page_permission.level2_count}</span>`)
+
+                $(`#js-level-filter`).find(`button[data-filter=3]`)[0].hidden = !(page_permission.level3 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=3]`).html(`${page_permission.level3_text} <span class="badge bg-warning">${page_permission.level3_count}</span>`)
+
+                $(`#js-level-filter`).find(`button[data-filter=9]`)[0].hidden = !(page_permission.level4 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=9]`).html(`${page_permission.level4_text} <span class="badge bg-success">${page_permission.level4_count}</span>`)
+
+                $(`#js-level-filter`).find(`button[data-filter=5]`)[0].hidden = !(page_permission.level5 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=5]`).html(`${page_permission.level5_text} <span class="badge bg-danger">${page_permission.level5_count}</span>`)
+                // set default filter
+                onLevelFilterClicked(page_permission.default_level)
+            }
+
+        }
+
+        function setActiveLevelFilterOn(level) {
+            // clear selection
+            $(`#js-level-filter`).find('button[data-filter]').each((i, e) => {
+                $(e).removeClass('active')
+            })
+            // highlight
+            $(`#js-level-filter`).find(`button[data-filter=${level}]`).addClass('active')
+        }
+
+        function onLevelFilterClicked(level) {
+            page_permission.active_filter = level
+            setActiveLevelFilterOn(page_permission.active_filter)
+            // reload datatable
+            onLevelFilterClicked_Handler()
+        }
+
+    </script>
+
+    <script>
+
+        $(function () {
+            console.log(`hello world!`)
+            initActionFilter()
+
+            $('#ProductModal').on('shown.bs.modal', function () {
+
+            }).on('hidden.bs.modal', function () {
+                window._seldata = null;
+                $('#ProductFormBody').attr('data-js', '');
+                $('#ProductForm')[0].reset();
+                $('#id').val('-1');
+            });
+
+        })
+
+        function onLevelFilterClicked_Handler() {
+            initProductTable()
+        }
+
+        var dtProduct;
+        var dtProductData;
+        function reloadProductTable() {
+            //// check if initialized
+            //if (dtProduct == null) {
+            //    initProductTable()
+            //    return;
+            //}
+            //// reload
+            //dtProduct.ajax.reload(function (json) {
+            //    dtProductData = json.data
+            //    // add other function to be called after table reloads
+            //    dtProduct.columns.adjust();
+            //}, false)
+
+
+            //var q = {
+            //    statuslvl: page_permission.active_filter
+            //}
+
+            //dtProduct.ajax.url("/home/LoadProducts?q=" + JSON.stringify(q)).load(function (json) {
+            //    dtProductData = json.data
+            //    // add other function to be called after table reloads
+            //    dtProduct.columns.adjust();
+            //}, false)
+
+            initProductTable()
+
+        }
+        function initProductTable() {
+
+            var q = {
+                statuslvl: page_permission.active_filter
+            }
+
+            $('#ProductTable').DataTable().destroy();
+            dtProduct = $('#ProductTable').DataTable({
+                stateSave: true,
+                ajax: {
+                    "url": "/home/LoadProducts?q=" + JSON.stringify(q),
+                    "type": "GET",
+                    datatype: "json",
+                    error: function (errormessage) {
+                        toastError("Error!", "Failed to load datatable ...")
+                    }
+                },
+                pageLength: 5,
+                order: [[1, "asc"]], // index based
+                lengthMenu: [
+                    [5, 10, 30, 50, -1],
+                    [" 5", 10, 30, 50, "All"]
+                ],
+                autoWidth: true,
+                initComplete: function (settings, json) {
+                    dtProductData = json.data;
+                    document.body.style.cursor = 'default';
+                },
+                columns: [
+                    // data: , name: , orderable: , autoWidth: , width: , className: 'text-center' , "visible":false
+                    { "data": "id", "autoWidth": true },
+                    { "data": "ProductName", "autoWidth": true },
+                    { "data": "ProductDescription", "autoWidth": true },
+                    { "data": "ProductCategory", "autoWidth": true },
+                    { "data": "ProductCategoryDescription", "autoWidth": true },
+                    { "data": "ProductPrice", "autoWidth": true }
+                ],
+                aoColumnDefs: [
+                    {
+                        "width": "90px",
+                        "aTargets": [0], // target column
+                        "bSortable": false,
+                        "mRender": function (data, type, full, meta) {
+                            return `<button class="btn btn-primary btn-sm btnRowEdit" style="font-size:smaller;" id="vw_${full.id}" data-id="${full.id}" onclick="showEditProductModal(${full.id})"> <span class="fas fa-edit"></span> VIEW</button> `;
+                        },
+                        "className": "text-center text-uppercase"
+                    }
+                ]
+
+            });
+        }
+
+        function showProductModal() {
+            $(".field-validation-error, .validation-summary-errors > ul").empty();
+            $('#ProductForm')[0].reset();
+            $('#id').val('-1');
+
+            $('#ProductModal h5').text('ADD NEW DETAILS');
+            $('#ProductModal').modal('show');
+        }
+
+        function showEditProductModal(id) {
+
+            $.ajax({
+                url: "/home/getbyid/?id=" + id,
+                type: "GET",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                success: function (result, textStatus, jqXHR) {
+                    if (result.data != null) {
+                        fillProductForm(result.data);
+                        $('#ProductModal h5').text('EDIT DETAILS');
+                        $('#ProductModal').modal('show');
+                        $('#ProductModal').find('form').data('isDirty', false);
+                    } else {
+                        swal("Error!", "There are no details to display.\n", "warning");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    swal("Error!", "Oops! something went wrong ... \n", "error");
+
+                }
+            });
+        }
+
+        function fillProductForm(js) {
+            window._seldata = js;
+            $('#id').val(js['id']);
+            $('#id').closest('form').data('isDirty', false);
+            $('#ProductName').val(js['ProductName']);
+            $('#ProductDescription').val(js['ProductDescription']);
+            $('#ProductCategory').val(js['ProductCategory']);
+            $('#ProductCategoryDescription').val(js['ProductCategoryDescription']);
+            $('#ProductPrice').val(js['ProductPrice']);
+        }
+
+        function saveProductForm() {
+
+            var model = {
+                id: _.toNumber($('#id').val()),
+                ProductName: $('#ProductName').val(),
+                ProductDescription: $('#ProductDescription').val(),
+                ProductCategory: $('#ProductCategory').val(),
+                ProductCategoryDescription: $('#ProductCategoryDescription').val(),
+                ProductPrice: _.toNumber($('#ProductPrice').val())
+            }
+
+            $.ajax({
+                url: "/{Controller}/{Action}",
+                data: JSON.stringify(model),
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                success: function (response, textStatus, jqXHR) {
+                    var msg;
+                    if (response.result == null) {
+                        msg = response.toLowerCase();
+                    } else {
+                        msg = response.result.toLowerCase();
+                    }
+                    if (msg.includes("success")) {
+                        $('#ProductModal').find('form').data('isDirty', false);
+                        $('#ProductModal').modal('hide');
+                        reloadProductTable(); // or dtProductTable.ajax.reload(null,false)
+                        swal("Saved!", "Record has been saved", "success");
+
+                    } else if (msg.includes("nochange")) {
+                        $('#ProductModal').find('form').data('isDirty', false);
+                        $('#ProductModal').modal('hide');
+                    } else {
+                        swal("Error", "An error occured: " + msg + "\n", "warning");
+
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status == 401) {
+                        swal2({
+                            title: `Unauthorized`,
+                            html: 'It seems you have been logged out.<br><b>Please login and try again.</b>',
+                            icon: 'error',
+                            dangerMode: true,
+                            showCancelButton: false,
+                        }, () => {
+                            window.location = "/Authentication/Logout";
+                        });
+                        return;
+                    }
+                    swal("Error!", "Oops! something went wrong ... \n", "error");
+                }
+            });
+
+
+        }
+
+
+
+    </script>
+
+}
