@@ -25,7 +25,7 @@ namespace WebAppTemplate.Controllers
 
             if (param.ContainsKey("statuslvl"))
             {
-                model = new List<Product>(model.Where(x => x.StatusLvl == int.Parse(param["statuslvl"].ToString())).ToList());
+                model = new List<Product>(model.Where(x => x.statuslvl == int.Parse(param["statuslvl"].ToString())).ToList());
             }
 
             return Content(JsonConvert.SerializeObject(new { data = model }), "application/json");

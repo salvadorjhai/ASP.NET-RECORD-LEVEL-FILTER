@@ -20,6 +20,6 @@ namespace WebAppTemplate.Models
 
         [Required(ErrorMessage = "Product price is required!")]
         public decimal? ProductPrice { get; set; } = 0;
-        public int StatusLvl { get; set; } = 0;
+        public int statuslvl { get; set; } = 0;
     }
 }

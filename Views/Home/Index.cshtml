@@ -27,7 +27,7 @@
                         </div>
                     </div>
 
-                    <div class="btn-group">
+                    <div class="btn-group" id="js-crud" >
                         <button type="button" class="btn btn-icon icon-left btn-primary text-uppercase mb-3" onclick="showProductModal()"><span class="fas fa-plus-square"></span> Add New Record</button>
                         <button type="button" class="btn btn-icon icon-left btn-warning text-uppercase mb-3"><span class="fas fa-plus-square"></span> Reports </button>
                     </div>
@@ -86,9 +86,9 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <div class="btn-group d-flex" id="js-level-update">
-                            <button id="" type="button" class="btn btn-danger"><span class="far fa-thumbs-up"></span> Back to level</button>
-                            <button id="" type="button" class="btn btn-warning"><span class="far fa-thumbs-up"></span> Submit for checking</button>
+                        <div class="btn-group d-flex" id="js-level-update" style="display:none">
+                            <button id="" type="button" class="btn btn-danger" data-filter="backlevel" data-value="-1"><span class="fas fa-arrow-circle-left"></span> Back to level</button>
+                            <button id="" type="button" class="btn btn-warning" data-filter="movelevel" data-value="-1"><span class="fas fa-arrow-circle-right"></span> Submit for checking</button>
                         </div>
 
                         <button id="btnSave_ProductModal" type="button" class="btn btn-success"><span class="far fa-thumbs-up"></span> SAVE</button>
@@ -109,18 +109,28 @@
         var page_permission = {
             pagecode: `page-001`,
             default_level: 1,
-            level1: 1,
-            level2: 1,
-            level3: 1,
-            level4: 1,
-            level5: 1,
+            // status filter enabled
+            lvl1: 1,
+            lvl2: 1,
+            lvl3: 1,
+            lvl4: 1,
+            others: 1,
 
-            level1_text: `Pending`,
-            level2_text: `For Checking`,
-            level3_text: `Checked`,
-            level4_text: `Approved`,
-            level5_text: `Cancelled/Deleted`,
+            // status filter (display name)
+            lvl1status: `Prepared`,
+            lvl2status: `Checked`,
+            lvl3status: `Endorsed`,
+            lvl4status: `Approved`,
+            otherstatus: `Cancelled/Deleted`,
 
+            // move to level button
+            lvl1name: `Prepare`,
+            lvl2name: `Check`,
+            lvl3name: `Endorse`,
+            lvl4name: `Approve`,
+            othername: `Cancel`,
+
+            // display count
             level1_count: 10,
             level2_count: 0,
             level3_count: 1,
@@ -146,20 +156,20 @@
                 $(`#js-level-filter`)[0].hidden = false;
                 $(`#js-level-filter`)[0].style = null;
                 // check if buttons are visible
-                $(`#js-level-filter`).find(`button[data-filter=1]`)[0].hidden = !(page_permission.level1 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=1]`).html(`${page_permission.level1_text} <span class="badge bg-secondary">${page_permission.level1_count}</span>`)
+                $(`#js-level-filter`).find(`button[data-filter=1]`)[0].hidden = !(page_permission.lvl1 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=1]`).html(`${page_permission.lvl1status} <span class="badge bg-secondary">${page_permission.level1_count}</span>`)
 
-                $(`#js-level-filter`).find(`button[data-filter=2]`)[0].hidden = !(page_permission.level2 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=2]`).html(`${page_permission.level2_text} <span class="badge bg-warning">${page_permission.level2_count}</span>`)
+                $(`#js-level-filter`).find(`button[data-filter=2]`)[0].hidden = !(page_permission.lvl2 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=2]`).html(`${page_permission.lvl2status} <span class="badge bg-warning">${page_permission.level2_count}</span>`)
 
-                $(`#js-level-filter`).find(`button[data-filter=3]`)[0].hidden = !(page_permission.level3 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=3]`).html(`${page_permission.level3_text} <span class="badge bg-warning">${page_permission.level3_count}</span>`)
+                $(`#js-level-filter`).find(`button[data-filter=3]`)[0].hidden = !(page_permission.lvl3 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=3]`).html(`${page_permission.lvl3status} <span class="badge bg-warning">${page_permission.level3_count}</span>`)
 
-                $(`#js-level-filter`).find(`button[data-filter=9]`)[0].hidden = !(page_permission.level4 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=9]`).html(`${page_permission.level4_text} <span class="badge bg-success">${page_permission.level4_count}</span>`)
+                $(`#js-level-filter`).find(`button[data-filter=9]`)[0].hidden = !(page_permission.lvl4 == 1)
+                $(`#js-level-filter`).find(`button[data-filter=9]`).html(`${page_permission.lvl4status} <span class="badge bg-success">${page_permission.level4_count}</span>`)
 
-                $(`#js-level-filter`).find(`button[data-filter=5]`)[0].hidden = !(page_permission.level5 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=5]`).html(`${page_permission.level5_text} <span class="badge bg-danger">${page_permission.level5_count}</span>`)
+                $(`#js-level-filter`).find(`button[data-filter=5]`)[0].hidden = !(page_permission.others == 1)
+                $(`#js-level-filter`).find(`button[data-filter=5]`).html(`${page_permission.otherstatus} <span class="badge bg-danger">${page_permission.level5_count}</span>`)
                 // set default filter
                 onLevelFilterClicked(page_permission.default_level)
             }
@@ -191,7 +201,93 @@
                 return;
             }
 
+            // no level filter
+            if (page_permission.default_level > 0) {
+                $(`#js-level-update`)[0].hidden = false;
+                $(`#js-level-update`)[0].style = null;
 
+                // with back (disabled)
+                if (window._seldata.statuslvl == 1) {
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = true;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = true;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = -1
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> ${page_permission.lvl1name}`)
+
+                    // todo: check if user is allowed 
+                    // ...
+
+                    // set move level values
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 2
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.lvl2name}`)
+
+                }
+                // with back
+                if (window._seldata.statuslvl == 2) {
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 1
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> Back to ${page_permission.lvl1name}`)
+
+                    // todo: check if user is allowed 
+                    // ...
+
+                    // set move level values
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = false;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 3
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.lvl3name}`)
+
+
+                }
+                if (window._seldata.statuslvl == 3) {
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 2
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> Back to ${page_permission.lvl2name}`)
+
+                    // todo: check if user is allowed 
+                    // ...
+
+                    // set move level values
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = false;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 9
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.lvl4name}`)
+
+
+                }
+                if (window._seldata.statuslvl == 9) {
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 3
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> Back to ${page_permission.lvl3name}`)
+
+                    // todo: check if user is allowed 
+                    // ...
+
+                    // set move level values
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = false;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 5
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.othername}`)
+
+                }
+                // with back but move back to draft
+                if (window._seldata.statuslvl == 5) {
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 1
+                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-history"></span> Back to ${page_permission.lvl1name}`)
+
+                    // set move level values
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = true;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = true;
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = -1
+                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.othername}`)
+
+                }
+            }
 
         }
 
@@ -341,6 +437,9 @@
             $('#ProductCategory').val(js['ProductCategory']);
             $('#ProductCategoryDescription').val(js['ProductCategoryDescription']);
             $('#ProductPrice').val(js['ProductPrice']);
+
+            // to update next level display
+            updateNextLevelDisplay()
         }
 
         function saveProductForm() {
