@@ -390,12 +390,15 @@
 
 
         var statuslevelfilter = new StatusLevelFilter({
-            pagecode: `page-001`,
             parent_filter: $('#js-level-filter'),
             parent_statusbutton: $('#js-level-update'),
+            // function to call after filter
             onLevelFilterClicked_Handler: reloadProductTable,
-            onMoveToLevelButtonClicked_Handler: onMoveToLevelButtonClicked,
+            // function to click on status update
+            onMoveToLevelButtonClicked_Handler: onMoveToLevelButtonClicked, 
+            // default level id
             default_level: 1,
+            // approval level
             approval_levels: [
                 {
                     id: 1,
@@ -445,6 +448,7 @@
             ],
         })
 
+        // initialize
         statuslevelfilter.Initialize()
 
     </script>
