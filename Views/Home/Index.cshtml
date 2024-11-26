@@ -27,7 +27,7 @@
                         </div>
                     </div>
 
-                    <div class="btn-group" id="js-crud" >
+                    <div class="btn-group" id="js-crud">
                         <button type="button" class="btn btn-icon icon-left btn-primary text-uppercase mb-3" onclick="showProductModal()"><span class="fas fa-plus-square"></span> Add New Record</button>
                         <button type="button" class="btn btn-icon icon-left btn-warning text-uppercase mb-3"><span class="fas fa-plus-square"></span> Reports </button>
                     </div>
@@ -55,6 +55,10 @@
             <div class="modal-content">
                 <div class="modal-header bg-dark text-uppercase text-light p-3">
                     <h5 class="modal-title"> </h5>
+                    <div class="btn-group" id="js-level-update" style="display:none">
+                        <button id="" type="button" class="btn btn-danger" data-filter="backlevel" data-value="-1" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move back to previous status/level..."><span class="fas fa-arrow-circle-left"></span> Back to level</button>
+                        <button id="" type="button" class="btn btn-warning" data-filter="movelevel" data-value="-1" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move or Submit For..."><span class="fas fa-arrow-circle-right"></span> Submit for checking</button>
+                    </div>
                 </div>
                 <form id="ProductForm" autocomplete="off" dirty-checker>
                     <div class="modal-body">
@@ -86,11 +90,6 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <div class="btn-group d-flex" id="js-level-update" style="display:none">
-                            <button id="" type="button" class="btn btn-danger" data-filter="backlevel" data-value="-1"><span class="fas fa-arrow-circle-left"></span> Back to level</button>
-                            <button id="" type="button" class="btn btn-warning" data-filter="movelevel" data-value="-1"><span class="fas fa-arrow-circle-right"></span> Submit for checking</button>
-                        </div>
-
                         <button id="btnSave_ProductModal" type="button" class="btn btn-success"><span class="far fa-thumbs-up"></span> SAVE</button>
                         <button id="btnClose_ProductModal" type="button" class="btn btn-danger" onclick="$('#ProductModal').modal('toggle')"><span class="far fa-thumbs-down"></span> CLOSE</button>
                     </div>
@@ -109,26 +108,53 @@
         var page_permission = {
             pagecode: `page-001`,
             default_level: 1,
-            // status filter enabled
-            lvl1: 1,
-            lvl2: 1,
-            lvl3: 1,
-            lvl4: 1,
-            others: 1,
-
-            // status filter (display name)
-            lvl1status: `Prepared`,
-            lvl2status: `Checked`,
-            lvl3status: `Endorsed`,
-            lvl4status: `Approved`,
-            otherstatus: `Cancelled/Deleted`,
-
-            // move to level button
-            lvl1name: `Prepare`,
-            lvl2name: `Check`,
-            lvl3name: `Endorse`,
-            lvl4name: `Approve`,
-            othername: `Cancel`,
+            approval_levels: [
+                {
+                    id: 1,
+                    status: "Prepared",
+                    name: "Prepare",
+                    btnclass: `btn btn-outline-primary`,
+                    badgeclass: `badge bg-primary`,
+                    backclass: `btn btn-danger`,
+                    moveclass: `btn btn-success`,
+                },
+                {
+                    id: 2,
+                    status: "Checked",
+                    name: "Check",
+                    btnclass: `btn btn-outline-primary`,
+                    badgeclass: `badge bg-primary`,
+                    backclass: `btn btn-danger`,
+                    moveclass: `btn btn-success`,
+                },
+                {
+                    id: 3,
+                    status: "Endorsed",
+                    name: "Endorse",
+                    btnclass: `btn btn-outline-primary`,
+                    badgeclass: `badge bg-primary`,
+                    backclass: `btn btn-danger`,
+                    moveclass: `btn btn-success`,
+                },
+                {
+                    id: 9,
+                    status: "Approved",
+                    name: "Approve",
+                    btnclass: `btn btn-outline-primary`,
+                    badgeclass: `badge bg-primary`,
+                    backclass: `btn btn-danger`,
+                    moveclass: `btn btn-success`,
+                },
+                {
+                    id: 5,
+                    status: "Cancelled/Deleted",
+                    name: "Cancel",
+                    btnclass: `btn btn-outline-danger`,
+                    badgeclass: `badge bg-danger`,
+                    backclass: `btn btn-danger`,
+                    moveclass: `btn btn-warning`,
+                }
+            ],
 
             // display count
             level1_count: 10,
@@ -141,39 +167,117 @@
     </script>
 
     <script>
+        
+        function _buildMoveTo(statuslvl) {
+            $('#js-level-update').empty()
+            $(`#js-level-update`)[0].hidden = false;
+            $(`#js-level-update`)[0].style = null;
 
-        function initActionFilter() {
-            // check if page have action filter
-            $(`#js-level-filter`)[0].hidden = true;
+            if (page_permission.approval_levels.length > 0) {
+                var l1 = []
+                var index = page_permission.approval_levels.findIndex(level => level.id === statuslvl)
 
-            //
-            $(`#js-level-filter`).find('button[data-filter]').on('click', function (e) {
-                onLevelFilterClicked(e.currentTarget.dataset.filter)
-            });
+                if (index + 1 == page_permission.approval_levels.length) {
+                    l1.push(page_permission.approval_levels[0]) // was last
 
-            // check if page have action filter
-            if (page_permission.default_level > 0) {
-                $(`#js-level-filter`)[0].hidden = false;
-                $(`#js-level-filter`)[0].style = null;
-                // check if buttons are visible
-                $(`#js-level-filter`).find(`button[data-filter=1]`)[0].hidden = !(page_permission.lvl1 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=1]`).html(`${page_permission.lvl1status} <span class="badge bg-secondary">${page_permission.level1_count}</span>`)
+                } else if (index > 0) {
+                    l1.push(page_permission.approval_levels[index - 1]) // previous
+                }
 
-                $(`#js-level-filter`).find(`button[data-filter=2]`)[0].hidden = !(page_permission.lvl2 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=2]`).html(`${page_permission.lvl2status} <span class="badge bg-warning">${page_permission.level2_count}</span>`)
+                if (index !== -1 && index < page_permission.approval_levels.length - 1) {
+                    const nextElement = page_permission.approval_levels[index + 1];
+                    l1.push(nextElement)
+                }
 
-                $(`#js-level-filter`).find(`button[data-filter=3]`)[0].hidden = !(page_permission.lvl3 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=3]`).html(`${page_permission.lvl3status} <span class="badge bg-warning">${page_permission.level3_count}</span>`)
+                var l2 = []
+                if (l1.length > 0) {
 
-                $(`#js-level-filter`).find(`button[data-filter=9]`)[0].hidden = !(page_permission.lvl4 == 1)
-                $(`#js-level-filter`).find(`button[data-filter=9]`).html(`${page_permission.lvl4status} <span class="badge bg-success">${page_permission.level4_count}</span>`)
+                    if (l1.length == 2) {
+                        // back to
+                        l2.push(`
+                            <button onclick="onMoveToLevelButtonClicked(this)" type="button" class="btn btn-danger" data-filter="backlevel" data-value="${l1[0].id}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move back to previous status/level...">
+                            <span class="fas fa-arrow-circle-left"></span> Back to ${l1[0].name}</button>
+                            `)
 
-                $(`#js-level-filter`).find(`button[data-filter=5]`)[0].hidden = !(page_permission.others == 1)
-                $(`#js-level-filter`).find(`button[data-filter=5]`).html(`${page_permission.otherstatus} <span class="badge bg-danger">${page_permission.level5_count}</span>`)
-                // set default filter
-                onLevelFilterClicked(page_permission.default_level)
+                        // move to
+                        l2.push(`
+                            <button onclick="onMoveToLevelButtonClicked(this)" type="button" class="btn btn-success" data-filter="movelevel" data-value="${l1[1].id}" data-title="${l1[1].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move or Submit For...">
+                            <span class="fas fa-arrow-circle-right"></span> ${l1[1].name}</button>
+                            `)
+
+                    } else {
+
+                        var ap = l1[0]
+
+                        // if last
+                        if (ap.id == page_permission.approval_levels[0].id) {
+                            // back to first
+                            l2.push(`
+                                <button onclick="onMoveToLevelButtonClicked(this)" type="button" class="btn btn-danger" data-filter="backlevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move Back to ${ap.name}">
+                                <span class="fas fa-arrow-circle-left"></span> Back to ${ap.name}</button>
+                                `)
+
+                        } else {
+                            // move to
+                            l2.push(`
+                                <button onclick="onMoveToLevelButtonClicked(this)" type="button" class="btn btn-success" data-filter="movelevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move or Submit For...">
+                                <span class="fas fa-arrow-circle-right"></span> ${ap.name}</button>
+                                `)
+
+                        }
+                    }
+
+                    // append html
+                    $('#js-level-update').html(`
+                            ${l2.filter(Boolean).join("")}
+                        `)
+
+                }
+
             }
 
+        }
+
+        function initActionFilter() {
+            $('#js-level-filter').empty()
+
+            // get permissions
+            var l1 = [];
+            for (var i = 0; i < page_permission.approval_levels.length; i++) {
+                var ap = page_permission.approval_levels[i]
+                l1.push(`<button type="button" class="${ap.btnclass}" data-filter="${ap.id}">${ap.status} <span class="${ap.badgeclass}">0</span></button>`)
+            }
+
+            // build
+            if (l1.length > 0) {
+                // append html
+                $('#js-level-filter').html(`
+                <div class="col-12">
+                    <div class="btn-group" role="group" aria-label="status level filter">
+                        ${l1.filter(Boolean).join("")}
+                    </div>
+                </div>
+                `)
+                // display
+                $(`#js-level-filter`)[0].hidden = false;
+                $(`#js-level-filter`)[0].style = null;
+                // event
+                $(`#js-level-filter`).find('button[data-filter]').on('click', function (e) {
+                    onLevelFilterClicked(e.currentTarget.dataset.filter)
+                });
+                // click initial
+                onLevelFilterClicked(page_permission.default_level)
+            }
+        }
+
+        function updateBadgeCount(js) {
+            // {id:0,count:0}
+            js.forEach((e) => {
+                var o = $('#js-level-filter').find(`button[data-filter=${e.id}] span`)
+                if (o != null) {
+                    o.text(e.count)
+                }
+            })
         }
 
         function setActiveLevelFilterOn(level) {
@@ -201,93 +305,8 @@
                 return;
             }
 
-            // no level filter
-            if (page_permission.default_level > 0) {
-                $(`#js-level-update`)[0].hidden = false;
-                $(`#js-level-update`)[0].style = null;
-
-                // with back (disabled)
-                if (window._seldata.statuslvl == 1) {
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = true;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = true;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = -1
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> ${page_permission.lvl1name}`)
-
-                    // todo: check if user is allowed 
-                    // ...
-
-                    // set move level values
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 2
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.lvl2name}`)
-
-                }
-                // with back
-                if (window._seldata.statuslvl == 2) {
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 1
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> Back to ${page_permission.lvl1name}`)
-
-                    // todo: check if user is allowed 
-                    // ...
-
-                    // set move level values
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = false;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 3
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.lvl3name}`)
-
-
-                }
-                if (window._seldata.statuslvl == 3) {
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 2
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> Back to ${page_permission.lvl2name}`)
-
-                    // todo: check if user is allowed 
-                    // ...
-
-                    // set move level values
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = false;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 9
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.lvl4name}`)
-
-
-                }
-                if (window._seldata.statuslvl == 9) {
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 3
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-arrow-circle-left"></span> Back to ${page_permission.lvl3name}`)
-
-                    // todo: check if user is allowed 
-                    // ...
-
-                    // set move level values
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = false;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = 5
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.othername}`)
-
-                }
-                // with back but move back to draft
-                if (window._seldata.statuslvl == 5) {
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].hidden = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].disabled = false;
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`)[0].dataset.value = 1
-                    $(`#js-level-update`).find(`button[data-filter=backlevel]`).html(`<span class="fas fa-history"></span> Back to ${page_permission.lvl1name}`)
-
-                    // set move level values
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].hidden = true;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].disabled = true;
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`)[0].dataset.value = -1
-                    $(`#js-level-update`).find(`button[data-filter=movelevel]`).html(`<span class="fas fa-arrow-circle-right"></span> ${page_permission.othername}`)
-
-                }
-            }
+            // build buttons
+            _buildMoveTo(window._seldata.statuslvl)
 
         }
 
@@ -296,7 +315,7 @@
     <script>
 
         $(function () {
-            console.log(`hello world!`)
+            // initailize action filter
             initActionFilter()
 
             $('#ProductModal').on('shown.bs.modal', function () {
@@ -309,6 +328,21 @@
             });
 
         })
+
+        function onMoveToLevelButtonClicked(sender) {
+            var moveToId = $(sender)[0].dataset.value
+            var moveToTitle = $(sender)[0].dataset.title
+
+            swal2({
+                title: `Update Status?`,
+                html: `Are you sure you want to move and update the status to <b>${moveToTitle}</b>`,
+                icon: 'warning',
+                dangerMode: true,
+            }, () => {
+                updateProductStatus(window._seldata.id, moveToId)
+            });
+
+        }
 
         function onLevelFilterClicked_Handler() {
             initProductTable()
@@ -357,6 +391,7 @@
                     "type": "GET",
                     datatype: "json",
                     error: function (errormessage) {
+                        CloseSwalLoader()
                         toastError("Error!", "Failed to load datatable ...")
                     }
                 },
@@ -370,6 +405,8 @@
                 initComplete: function (settings, json) {
                     dtProductData = json.data;
                     document.body.style.cursor = 'default';
+
+                    setTimeout(updateBadgeCount(json.badgecount), 1); // update badge count
                 },
                 columns: [
                     // data: , name: , orderable: , autoWidth: , width: , className: 'text-center' , "visible":false
@@ -500,6 +537,59 @@
 
         }
 
+        function updateProductStatus(id, newstatusid) {
+
+            var model = {
+                id: _.toNumber($('#id').val()),
+                statusid: _.toNumber(newstatusid),
+            }
+
+            $.ajax({
+                url: "/product/updatestatuslevel",
+                data: JSON.stringify(model),
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                success: function (response, textStatus, jqXHR) {
+                    var msg;
+                    if (response.result == null) {
+                        msg = response.toLowerCase();
+                    } else {
+                        msg = response.result.toLowerCase();
+                    }
+                    if (msg.includes("success")) {
+                        $('#ProductModal').find('form').data('isDirty', false);
+                        $('#ProductModal').modal('hide');
+                        reloadProductTable(); // or dtProductTable.ajax.reload(null,false)
+                        swal("Saved!", "Record has been saved", "success");
+
+                    } else if (msg.includes("nochange")) {
+                        $('#ProductModal').find('form').data('isDirty', false);
+                        $('#ProductModal').modal('hide');
+                    } else {
+                        swal("Error", "An error occured: " + msg + "\n", "warning");
+
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (jqXHR.status == 401) {
+                        swal2({
+                            title: `Unauthorized`,
+                            html: 'It seems you have been logged out.<br><b>Please login and try again.</b>',
+                            icon: 'error',
+                            dangerMode: true,
+                            showCancelButton: false,
+                        }, () => {
+                            window.location = "/Authentication/Logout";
+                        });
+                        return;
+                    }
+                    swal("Error!", "Oops! something went wrong ... \n", "error");
+                }
+            });
+
+
+        }
 
 
     </script>
