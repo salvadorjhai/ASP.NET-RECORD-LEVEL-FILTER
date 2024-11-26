@@ -124,6 +124,10 @@
                 $('#id').val('-1');
             });
 
+            $('#btnSave_ProductModal').on('click', function() {
+                saveProductForm()
+            })
+
         })
 
         function onMoveToLevelButtonClicked(sender) {
@@ -185,7 +189,6 @@
                     "type": "GET",
                     datatype: "json",
                     error: function (errormessage) {
-                        CloseSwalLoader()
                         toastError("Error!", "Failed to load datatable ...")
                     }
                 },
@@ -285,7 +288,7 @@
             }
 
             $.ajax({
-                url: "/{Controller}/{Action}",
+                url: "/product/upsert",
                 data: JSON.stringify(model),
                 type: "POST",
                 contentType: "application/json;charset=UTF-8",

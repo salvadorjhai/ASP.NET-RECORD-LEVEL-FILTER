@@ -48,6 +48,49 @@ namespace WebAppTemplate.Controllers
             return Content(JsonConvert.SerializeObject(new { data = model }), "application/json");
         }
 
+        public ActionResult Upsert(Product update)
+        {
+            var js = System.IO.File.ReadAllText(Server.MapPath("~/App_Data/product.json"), new UTF8Encoding(false));
+            var list = JsonConvert.DeserializeObject<List<Product>>(js);
+            if (update.id <= 0)
+            {
+                var model = new Product();
+                model.id = list.OrderByDescending(x => x.id).Select(x => x.id).FirstOrDefault() + 1;
+                model.statuslvl = 1;
+
+                list.Add(model);
+
+                // save
+                js = JsonConvert.SerializeObject(list);
+                System.IO.File.WriteAllText(Server.MapPath("~/App_Data/product.json"), js, new UTF8Encoding(false));
+
+                // respond
+                return Content(JsonConvert.SerializeObject(new { data = model, result = "success" }), "application/json");
+
+            } else
+            {
+                var model = list.FirstOrDefault(x => x.id == update.id);
+                if (model != null && model.statuslvl <= 1)
+                {
+                    model.ProductName = update.ProductName;
+                    model.ProductPrice = update.ProductPrice;
+                    model.ProductDescription = update.ProductDescription;
+                    model.ProductCategory = update.ProductCategory;
+                    model.ProductCategoryDescription = update.ProductCategoryDescription;
+
+                    // save
+                    js = JsonConvert.SerializeObject(list);
+                    System.IO.File.WriteAllText(Server.MapPath("~/App_Data/product.json"), js, new UTF8Encoding(false));
+
+                    // respond
+                    return Content(JsonConvert.SerializeObject(new { data = model, result = "success" }), "application/json");
+                }
+
+            }
+
+            return Content(JsonConvert.SerializeObject(new { data = update, result = "nochange" }), "application/json");
+        }
+
         public ActionResult UpdateStatusLevel(int id, int statusid)
         {
             var js = System.IO.File.ReadAllText(Server.MapPath("~/App_Data/product.json"), new UTF8Encoding(false));
