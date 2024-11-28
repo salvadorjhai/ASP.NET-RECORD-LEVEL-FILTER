@@ -156,6 +156,8 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="App_Data\product.json" />
+    <Content Include="Scripts\myscripts\status-level-filter\StatusLevelFilter.css" />
+    <Content Include="Scripts\myscripts\status-level-filter\StatusLevelFilter.js" />
     <Content Include="_DOCS\detail.png" />
     <Content Include="_DOCS\list.png" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />

@@ -58,7 +58,7 @@
                     <h5 class="modal-title"> </h5>
 
                     <!-- js-level-update -->
-                    <div class="btn-group" id="js-level-update" style="display:none">
+                    <div class="btn-group btn-group-sm js-level-update" id="js-level-update" style="display:none">
                         <button id="" type="button" class="btn btn-danger" data-filter="backlevel" data-value="-1" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move back to previous status/level..."><span class="fas fa-arrow-circle-left"></span> Back to level</button>
                         <button id="" type="button" class="btn btn-warning" data-filter="movelevel" data-value="-1" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move or Submit For..."><span class="fas fa-arrow-circle-right"></span> Submit for checking</button>
                     </div>
@@ -105,9 +105,12 @@
 
 </main>
 
-@section scripts{
+@section css{
+    <link href="~/Scripts/myscripts/status-level-filter/StatusLevelFilter.css" rel="stylesheet" />
+}
 
-    <script src="~/Scripts/myscripts/StatusLevelFilter.js"></script>
+@section scripts{
+    <script src="~/Scripts/myscripts/status-level-filter/StatusLevelFilter.js"></script>
 
     <script>
 
@@ -124,55 +127,34 @@
                 $('#id').val('-1');
             });
 
-            $('#btnSave_ProductModal').on('click', function() {
+            $('#btnSave_ProductModal').on('click', function () {
                 saveProductForm()
             })
 
         })
 
-        function onMoveToLevelButtonClicked(sender) {
-            var moveToId = $(sender)[0].dataset.value
-            var moveToTitle = $(sender)[0].dataset.title
-
-            swal2({
-                title: `Update Status?`,
-                html: `Are you sure you want to move and update the status to <b>${moveToTitle}</b>`,
-                icon: 'warning',
-                dangerMode: true,
-            }, () => {
-                updateProductStatus(window._seldata.id, moveToId)
-            });
-
-        }
-
-
         var dtProduct;
         var dtProductData;
         function reloadProductTable() {
-            //// check if initialized
-            //if (dtProduct == null) {
-            //    initProductTable()
-            //    return;
-            //}
-            //// reload
-            //dtProduct.ajax.reload(function (json) {
-            //    dtProductData = json.data
-            //    // add other function to be called after table reloads
-            //    dtProduct.columns.adjust();
-            //}, false)
 
+            // check if initialized
+            if (dtProduct == null) {
+                initProductTable()
+                return;
+            }
 
-            //var q = {
-            //    statuslvl: statuslevelfilter.active_filter
-            //}
+            // else change url
+            var q = {
+                statuslvl: statuslevelfilter.active_filter
+            }
 
-            //dtProduct.ajax.url("/product/LoadProducts?q=" + JSON.stringify(q)).load(function (json) {
-            //    dtProductData = json.data
-            //    // add other function to be called after table reloads
-            //    dtProduct.columns.adjust();
-            //}, false)
+            dtProduct.ajax.url("/product/LoadProducts?q=" + JSON.stringify(q)).load(function (json) {
+                dtProductData = json.data
+                // add other function to be called after table reloads
+                dtProduct.columns.adjust();
 
-            initProductTable()
+                setTimeout(statuslevelfilter.updateBadgeCount(json.badgecount), 1); // update badge count
+            }, false)
 
         }
         function initProductTable() {
@@ -236,6 +218,9 @@
 
             $('#ProductModal h5').text('ADD NEW DETAILS');
             $('#ProductModal').modal('show');
+
+            // to update next level display
+            statuslevelfilter.BuildMoveToButtons(0)
         }
 
         function showEditProductModal(id) {
@@ -334,6 +319,23 @@
 
         }
 
+        /** ----------------------------------- */
+
+        function onMoveToLevelButtonClicked(sender) {
+            var moveToId = $(sender)[0].dataset.value
+            var moveToTitle = $(sender)[0].dataset.title
+
+            swal2({
+                title: `Update Status?`,
+                html: `Are you sure you want to move and update the status to <b>${moveToTitle}</b>`,
+                icon: 'warning',
+                dangerMode: true,
+            }, () => {
+                updateProductStatus(window._seldata.id, moveToId)
+            });
+
+        }
+
         function updateProductStatus(id, newstatusid) {
 
             var model = {
@@ -388,14 +390,13 @@
 
         }
 
-
         var statuslevelfilter = new StatusLevelFilter({
             parent_filter: $('#js-level-filter'),
             parent_statusbutton: $('#js-level-update'),
             // function to call after filter
             onLevelFilterClicked_Handler: reloadProductTable,
             // function to click on status update
-            onMoveToLevelButtonClicked_Handler: onMoveToLevelButtonClicked, 
+            onMoveToLevelButtonClicked_Handler: onMoveToLevelButtonClicked,
             // default level id
             default_level: 1,
             // approval level

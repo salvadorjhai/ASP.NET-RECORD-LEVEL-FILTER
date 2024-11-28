@@ -12,6 +12,9 @@ class StatusLevelFilter {
         this.onMoveToLevelButtonClicked_Handler = opt.onMoveToLevelButtonClicked_Handler
     }
 
+    /**
+     * initialize all controls
+     */
     Initialize() {
         var parent = this.parent_filter;
         $(parent).empty()
@@ -45,9 +48,19 @@ class StatusLevelFilter {
         }
     }
 
+    /**
+     * build move to buttons
+     * @param {any} statuslvl <= 0 to clear
+     * @returns
+     */
     BuildMoveToButtons(statuslvl) {
         var parent = this.parent_statusbutton;
         $(parent).empty()
+        if (statuslvl <= 0) {
+            $(parent)[0].hidden = true;
+            $(parent)[0].style = 'display:none';
+            return;
+        }
         $(parent)[0].hidden = false;
         $(parent)[0].style = null;
 
@@ -120,6 +133,10 @@ class StatusLevelFilter {
 
     }
 
+    /**
+     * update badge count
+     * @param {any} js
+     */
     updateBadgeCount(js) {
         var parent = this.parent_filter;
 
@@ -130,6 +147,7 @@ class StatusLevelFilter {
             }
         })
     }
+
 
     onLevelFilterClicked(level) {
         this.active_filter = level
