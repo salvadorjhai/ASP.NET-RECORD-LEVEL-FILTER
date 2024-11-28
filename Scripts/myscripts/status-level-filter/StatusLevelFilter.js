@@ -139,7 +139,11 @@ class StatusLevelFilter {
      */
     updateBadgeCount(js) {
         var parent = this.parent_filter;
-
+        // clear all first
+        $(parent).find(`button[data-filter] span`).each((i, e) => {
+            $(e).text(0)
+        })
+        // set actual values
         js.forEach((e) => {
             var o = $(parent).find(`button[data-filter=${e.id}] span`)
             if (o != null) {
