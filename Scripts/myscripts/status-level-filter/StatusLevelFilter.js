@@ -77,37 +77,16 @@ class StatusLevelFilter {
 
             if (index !== -1 && index < this.approval_levels.length - 1) {
                 const nextElement = this.approval_levels[index + 1];
-                l1.push(nextElement)
-
-                // show as 3rd option
-                if (index + 2 == this.approval_levels.length - 1) {
-                    l1.push(this.approval_levels[index + 2]) // was last
+                // ignore iscancelled
+                if (nextElement.iscancelled == null || nextElement.iscancelled == false) {
+                    l1.push(nextElement)
                 }
             }
 
             var l2 = []
             if (l1.length > 0) {
 
-                if (l1.length == 3) {
-                    // back to
-                    l2.push(`
-                        <button type="button" class="${l1[0].backclass}" data-filter="backlevel" data-value="${l1[0].id}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move back to ${l1[0].name}...">
-                        <span class="fas fa-arrow-circle-left"></span> Back to ${l1[0].name}</button>
-                    `)
-
-                    // move to
-                    l2.push(`
-                        <button type="button" class="${l1[1].moveclass}" data-filter="movelevel" data-value="${l1[1].id}" data-title="${l1[1].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${l1[1].name}...">
-                        <span class="fas fa-arrow-circle-right"></span> ${l1[1].name}</button>
-                    `)
-
-                    // show as 3rd option
-                    l2.push(`
-                        <button type="button" class="${l1[2].moveclass}" data-filter="movelevel" data-value="${l1[2].id}" data-title="${l1[2].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${l1[2].name}...">
-                        <span class="fas fa-arrow-circle-right"></span> ${l1[2].name}</button>
-                    `)
-
-                } else if (l1.length == 2) {
+                if (l1.length == 2) {
                     // back to
                     l2.push(`
                         <button type="button" class="${l1[0].backclass}" data-filter="backlevel" data-value="${l1[0].id}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move back to ${l1[0].name}...">
@@ -139,6 +118,18 @@ class StatusLevelFilter {
                             <span class="fas fa-arrow-circle-right"></span> ${ap.name}</button>
                         `)
 
+                    }
+                }
+
+                // find iscancelled button (separate it)
+                if (index + 1 != this.approval_levels.length) {
+                    var cx = this.approval_levels.filter((x) => x.iscancelled == true)[0];
+                    if (cx != null) {
+                        // move to
+                        l2.push(`
+                        <button type="button" class="${cx.moveclass}" data-filter="movelevel" data-value="${cx.id}" data-title="${cx.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${cx.name}...">
+                        <span class="fas fa-trash-alt"></span> ${cx.name}</button>
+                    `)
                     }
                 }
 
