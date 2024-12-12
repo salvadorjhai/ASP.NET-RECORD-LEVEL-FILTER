@@ -104,7 +104,7 @@ class StatusLevelFilter {
                     var ap = l1[0]
 
                     // if last
-                    if (ap.id == this.approval_levels[0].id) {
+                    if (index > 0 || (index == this.approval_levels.length)) {
                         // back to first
                         l2.push(`
                             <button type="button" class="${ap.backclass}" data-filter="backlevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move Back to ${ap.name}">
