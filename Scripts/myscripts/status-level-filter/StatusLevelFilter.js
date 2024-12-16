@@ -55,6 +55,7 @@ class StatusLevelFilter {
      */
     BuildMoveToButtons(statuslvl) {
         var parent = this.parent_statusbutton;
+        $(parent).prop('class', 'js-level-update')
         $(parent).empty()
         if (statuslvl <= 0) {
             $(parent)[0].hidden = true;
@@ -122,11 +123,12 @@ class StatusLevelFilter {
                 }
 
                 // find iscancelled button (separate it)
+                var l3 = [];
                 if (index + 1 != this.approval_levels.length) {
                     var cx = this.approval_levels.filter((x) => x.iscancelled == true)[0];
                     if (cx != null) {
                         // move to
-                        l2.push(`
+                        l3.push(`
                         <button type="button" class="${cx.moveclass}" data-filter="movelevel" data-value="${cx.id}" data-title="${cx.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${cx.name}...">
                         <span class="fas fa-trash-alt"></span> ${cx.name}</button>
                     `)
@@ -135,7 +137,12 @@ class StatusLevelFilter {
 
                 // append html
                 $(parent).html(`
-                            ${l2.filter(Boolean).join("")}
+                            <div class="btn-group btn-group-sm">
+                                ${l2.filter(Boolean).join("")}
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                ${l3.filter(Boolean).join("")}
+                            </div>
                         `)
 
                 $(parent).find('button[data-filter]').on('click', (e) => {
