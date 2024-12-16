@@ -14,7 +14,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WebAppTemplate</RootNamespace>
     <AssemblyName>WebAppTemplate</AssemblyName>
-	  <LangVersion>latest</LangVersion>
+    <LangVersion>latest</LangVersion>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
@@ -157,6 +157,7 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="App_Data\product.json" />
+    <Content Include="Scripts\myscripts\Home\index.js" />
     <Content Include="Scripts\myscripts\status-level-filter\StatusLevelFilter.css" />
     <Content Include="Scripts\myscripts\status-level-filter\StatusLevelFilter.js" />
     <Content Include="_DOCS\detail.png" />

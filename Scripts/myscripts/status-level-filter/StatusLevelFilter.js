@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Reusable status filter
  */
 
@@ -88,17 +88,22 @@ class StatusLevelFilter {
             if (l1.length > 0) {
 
                 if (l1.length == 2) {
-                    // back to
-                    l2.push(`
-                        <button type="button" class="${l1[0].backclass}" data-filter="backlevel" data-value="${l1[0].id}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move back to ${l1[0].name}...">
-                        <span class="fas fa-arrow-circle-left"></span> Back to ${l1[0].name}</button>
-                    `)
+                    // back to                  
+                    if (this.IsBackButtonAllowed(l1[0])) {
+                        l2.push(`
+                            <button type="button" class="${l1[0].backclass}" data-filter="backlevel" data-value="${l1[0].id}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move back to ${l1[0].name}...">
+                            <span class="fas fa-arrow-circle-left"></span> Back to ${l1[0].name}</button>
+                        `)                        
+                    }
 
                     // move to
-                    l2.push(`
+                    if (this.IsMoveButtonAllowed(l1[1])){
+                      l2.push(`
                         <button type="button" class="${l1[1].moveclass}" data-filter="movelevel" data-value="${l1[1].id}" data-title="${l1[1].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${l1[1].name}...">
                         <span class="fas fa-arrow-circle-right"></span> ${l1[1].name}</button>
                     `)
+                    }
+              
 
                 } else {
 
@@ -107,17 +112,22 @@ class StatusLevelFilter {
                     // if last
                     if (index > 0 || (index == this.approval_levels.length)) {
                         // back to first
-                        l2.push(`
-                            <button type="button" class="${ap.backclass}" data-filter="backlevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move Back to ${ap.name}">
-                            <span class="fas fa-arrow-circle-left"></span> Back to ${ap.name}</button>
-                        `)
+                        if (this.IsBackButtonAllowed(ap)) {
+                            l2.push(`
+                                <button type="button" class="${ap.backclass}" data-filter="backlevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Move Back to ${ap.name}">
+                                <span class="fas fa-arrow-circle-left"></span> Back to ${ap.name}</button>
+                            `)                            
+                        }
+
 
                     } else {
                         // move to
+                        if (this.IsMoveButtonAllowed(ap)) {
                         l2.push(`
                             <button type="button" class="${ap.moveclass}" data-filter="movelevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${ap.name}">
                             <span class="fas fa-arrow-circle-right"></span> ${ap.name}</button>
-                        `)
+                        `)                            
+                        }
 
                     }
                 }
@@ -155,6 +165,32 @@ class StatusLevelFilter {
 
     }
 
+    /**
+     * check if back button is allowed
+     * @param {any} e
+     * @returns
+     */
+    IsBackButtonAllowed(e) {
+        if (this.allowed_movement == null) {
+            return true;
+        }
+        var exists = this.allowed_movement.find((x) => x.id == e.id)  
+        return (exists != null && exists.backlevel == 1)
+    }
+
+    /**
+     * check if move button is allowed
+     * @param {any} e
+     * @returns
+     */
+    IsMoveButtonAllowed(e) {
+        if (this.allowed_movement == null) {
+            return true;
+        }
+        var exists = this.allowed_movement.find((x) => x.id == e.id)  
+        return (exists != null && exists.movelevel == 1)
+    }
+    
     /**
      * update badge count
      * @param {any} js
