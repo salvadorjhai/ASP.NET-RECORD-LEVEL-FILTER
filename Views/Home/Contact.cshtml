@@ -1,19 +1,210 @@
 ﻿@{
-    ViewBag.Title = "Contact";
+    ViewBag.Title = "Attachments";
 }
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
+<main>
 
-    <address>
-        One Microsoft Way<br />
-        Redmond, WA 98052-6399<br />
-        <abbr title="Phone">P:</abbr>
-        425.555.0100
-    </address>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><span class="fas fa-tags fs-6"></span> @ViewBag.Title <small>(view, add, edit)</small> </h4>
+                </div>
+                <div class="card-body">
 
-    <address>
-        <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
-        <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-    </address>
+                    <div id="js_attachment_table_container">
+                        <input name="file" style="display:none;" hidden type="file" accept="application/msword, application/vnd.ms-excel, text/plain, application/pdf, image/*">
+                        <table class="table table-hover table-bordered table-sm" id="js_attachment_table" style="width:100%">
+                            <thead>
+                                <tr class="bg-primary text-white text-uppercase">
+                                    <th style="width:32px;"></th>
+                                    <th style="width:32px;" class="text-center">Preview</th>
+                                    <th style="width:32px;" class="text-center">file</th>
+                                    <th class="text-center">description</th>
+                                    <th class="text-center">uploaded</th>
+                                    <th class="text-center" style="width:24px"></th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr class="">
+                                    <th style="width:32px;"><button type="button" class="btn btn-outline-primary btn-sm btnAdd" onclick="OnAddAttachmentClick(this)" style="border:none" data-bs-toggle="tooltip" data-placement="top" title="add"><span class="fas fa-plus-circle">+</span></button></th>
+                                    <th style="width:32px;" class="text-center"></th>
+                                    <th style="width:32px;" class="text-center"></th>
+                                    <th class="text-center"></th>
+                                    <th class="text-center"></th>
+                                    <th style="width:24px " class="text-center"></th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @{
+                                    for (int i = 0; i < 5; i++)
+                                    {
+                                        <tr data-id="">
+                                            <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeTdItem(this)" style="border:none" data-bs-toggle="tooltip" data-placement="top" title="remove"><span class="fas fa-times-circle">X</span></button></td>
+                                            <td>
+                                                <a href="~/Content/img/word.png" target="_blank">
+                                                    <img src="~/Content/img/word.png" width="80" />
+                                                </a>
+                                            </td>
+                                            <td class="p-2">
+                                                <input name="file" style="display:none;" hidden type="file" accept="application/msword, application/vnd.ms-excel, text/plain, application/pdf, image/*">
+                                                <input name="title" required="required" type="text" placeholder="filename" value="" class="form-control-plaintext form-control-sm" style="border-style:dashed" onfocus="this.select();" onmouseup="return false;" />
+                                                <small><strong>File size:</strong> 193.10kb</small><br />
+                                                <small><strong>File type:</strong> .xlsx</small>
+                                            </td>
+                                            <td class="p-2">
+                                                <input name="description" type="text" placeholder="description" class="form-control-plaintext form-control-sm" style="border-style:dashed" onfocus="this.select();" onmouseup="return false;" />
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-row" style="font-size:small;">
+                                                    <div class="me-2">
+                                                        <small>
+                                                            <strong class="themefont text-uppercase">SAMPLE NAME</strong><br />
+                                                            @DateTime.Now.ToString()
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center" data-bs-toggle="tooltip" data-placement="top" title="hold and drag to reorder">☰</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="js_attachment_preview_modal_container">
+        <div class="modal fade bg-opacity-75" id="js_attachment_preview_modal" role="dialog" data-bs-focus="false" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="attachment preview" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark text-uppercase text-light p-3">
+                        <h5 class="modal-title"> Preview </h5>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" onclick="$('#js_attachment_preview_modal').modal('toggle')"><span class="far fa-thumbs-down"></span> CLOSE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
+
+@section scripts{
+
+    <script>
+
+        class JSAttachment {
+            constructor(opt) {
+
+            }
+        }
+    </script>
+
+
+    <script>
+        $(function () {
+            $('#js_attachment_table_container').find('tbody').empty()
+        });
+
+        $('#js_attachment_table_container').find('input[type=file]').on('change', function (s) {
+
+            var fls = $(this)[0].files
+            if (fls.length > 0) {
+                for (var i = 0; i < fls.length; i++) {
+                    // add dynamic row
+                    AddNewTDRow(-1);
+
+                    // set display
+                    if (fls[i].type.includes('image/')) {
+                        // preview
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', e.target.result);
+                            $('#js_attachment_table_container').find('tbody>tr:last() a').attr('href', '#').attr('target', null);
+                        };
+                        reader.readAsDataURL(fls[i]);
+                        
+                    } else {
+                        $('#js_attachment_table_container').find('tbody>tr:last() a').attr('href', '#').attr('target', null);
+
+                        if (fls[i].type.includes('pdf')) {
+                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/pdf.png');
+
+                        } else if (fls[i].type.includes('msword')) {
+                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/word.png');
+
+                        } else if (fls[i].type.includes('excel')) {
+                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/excel.png');
+
+                        } else {
+                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/others.png');
+                        }
+
+                    }
+
+                    // Set the files property of the target input
+                    var dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(fls[i]);
+
+                    $('#js_attachment_table_container').find('tbody>tr:last() strong[name=title]').text(fls[i].name);
+                    $('#js_attachment_table_container').find('tbody>tr:last() input[type=file]')[0].files = dataTransfer.files;
+
+                }
+            }
+            $(this)[0].value = null; // clear
+
+
+        })
+
+        function OnRemovedItemClick(s) {
+            $(s).parent().parent().remove()
+        }
+
+        function OnAddAttachmentClick(s) {
+            $('#js_attachment_table_container').find('input[type=file]')[0].click()
+        }
+
+        function AddNewTDRow(id) {
+            $('#js_attachment_table_container').find('tbody').append(`
+                <tr data-id="${id}">
+                    <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="OnRemovedItemClick(this)" style="border:none" data-bs-toggle="tooltip" data-placement="top" title="remove"><span class="fas fa-times-circle">X</span></button></td>
+                    <td>
+                        <a href="~/Content/img/word.png" target="_blank">
+                            <img src="~/Content/img/word.png" width="75" />
+                        </a>
+                    </td>
+                    <td class="p-2">
+                        <input name="file" style="display:none;" hidden type="file" accept="application/msword, application/vnd.ms-excel, text/plain, application/pdf, image/*">
+                        <small><strong name="title"></strong> </small><br />
+                        <small><strong>File size:</strong> 193.10kb</small><br />
+                        <small><strong>File type:</strong> .xlsx</small>
+                    </td>
+                    <td class="p-2">
+                        <input name="description" type="text" placeholder="description" class="form-control form-control-sm" style="border-style:dashed" onfocus="this.select();" onmouseup="return false;" />
+                    </td>
+                    <td>
+                        <div class="d-flex flex-row" style="font-size:small;">
+                            <div class="me-2">
+                                <small>
+                                    <strong class="themefont text-uppercase">SAMPLE NAME</strong><br />
+                                    @DateTime.Now.ToString()
+                                </small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center" data-bs-toggle="tooltip" data-placement="top" title="hold and drag to reorder">☰</td>
+                </tr>
+            `)
+        }
+
+    </script>
+
+}

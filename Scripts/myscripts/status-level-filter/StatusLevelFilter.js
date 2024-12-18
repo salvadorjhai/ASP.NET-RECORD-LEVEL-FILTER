@@ -85,6 +85,7 @@ class StatusLevelFilter {
             }
 
             var l2 = []
+            var dontshowcancel = 0;
             if (l1.length > 0) {
 
                 if (l1.length == 2) {
@@ -103,7 +104,9 @@ class StatusLevelFilter {
                         <span class="fas fa-arrow-circle-right"></span> ${l1[1].name}</button>
                     `)
                     }
-              
+
+                    // dont show cancel button
+                    dontshowcancel = (l1[1].dontshowcancel != null && l1[1].dontshowcancel == 1)
 
                 } else {
 
@@ -130,11 +133,14 @@ class StatusLevelFilter {
                         }
 
                     }
+
+                    // dont show cancel button
+                    dontshowcancel = (ap.dontshowcancel != null && ap.dontshowcancel == 1)
                 }
 
                 // find iscancelled button (separate it)
                 var l3 = [];
-                if (index + 1 != this.approval_levels.length) {
+                if (index + 1 != this.approval_levels.length && dontshowcancel == 0) {
                     var cx = this.approval_levels.filter((x) => x.iscancelled == true)[0];
                     if (cx != null) {
                         // move to
