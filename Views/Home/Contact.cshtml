@@ -12,13 +12,19 @@
                 <div class="card-body">
 
                     <div id="js_attachment_table_container">
+
+                        <div class="btn-group" id="js-attachment-crud">
+                            <button type="button" class="btn btn-sm btn-icon icon-left btn-primary text-uppercase mb-3 act1"><span class="fas fa-plus-square"></span> Attach New File</button>
+                            <button type="button" class="btn btn-sm btn-icon icon-left btn-outline-success text-uppercase mb-3 act2" disabled><span class="fas fa-plus-square"></span> Upload Attachment <span class="badge bg-success">0</span> </button>
+                        </div>
+
                         <input name="file" style="display:none;" hidden type="file" accept="application/msword, application/vnd.ms-excel, text/plain, application/pdf, image/*">
                         <table class="table table-hover table-bordered table-sm" id="js_attachment_table" style="width:100%">
                             <thead>
                                 <tr class="bg-primary text-white text-uppercase">
                                     <th style="width:32px;"></th>
-                                    <th style="width:32px;" class="text-center">Preview</th>
-                                    <th style="width:32px;" class="text-center">file</th>
+                                    <th style="width:100px;" class="text-center">Preview</th>
+                                    <th style="width:300px;" class="text-center">file</th>
                                     <th class="text-center">description</th>
                                     <th class="text-center">uploaded</th>
                                     <th class="text-center" style="width:24px"></th>
@@ -27,8 +33,8 @@
                             <tfoot>
                                 <tr class="">
                                     <th style="width:32px;"><button type="button" class="btn btn-outline-primary btn-sm btnAdd" onclick="OnAddAttachmentClick(this)" style="border:none" data-bs-toggle="tooltip" data-placement="top" title="add"><span class="fas fa-plus-circle">+</span></button></th>
-                                    <th style="width:32px;" class="text-center"></th>
-                                    <th style="width:32px;" class="text-center"></th>
+                                    <th style="width:100px;" class="text-center"></th>
+                                    <th style="width:300px;" class="text-center"></th>
                                     <th class="text-center"></th>
                                     <th class="text-center"></th>
                                     <th style="width:24px " class="text-center"></th>
@@ -102,8 +108,10 @@
     <script>
 
         class JSAttachment {
-            constructor(opt) {
-
+            container;
+            constructor(container) {
+                this.container = container
+                $(container).empty()
             }
         }
     </script>
@@ -114,8 +122,14 @@
             $('#js_attachment_table_container').find('tbody').empty()
         });
 
-        $('#js_attachment_table_container').find('input[type=file]').on('change', function (s) {
-
+        var container = $('#js_attachment_table_container')
+        $(container).on('click', '.act1', function () {
+            OnAddAttachmentClick(this)
+        })
+        $(container).on('click', '.act2', function () {
+            
+        })
+        $(container).on('change', 'input[type=file]', function (s) {
             var fls = $(this)[0].files
             if (fls.length > 0) {
                 for (var i = 0; i < fls.length; i++) {
@@ -127,25 +141,25 @@
                         // preview
                         var reader = new FileReader();
                         reader.onload = function (e) {
-                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', e.target.result);
-                            $('#js_attachment_table_container').find('tbody>tr:last() a').attr('href', '#').attr('target', null);
+                            $(container).find('tbody>tr:last() img').attr('src', e.target.result);
+                            $(container).find('tbody>tr:last() a').attr('href', '#').attr('target', null);
                         };
                         reader.readAsDataURL(fls[i]);
-                        
+
                     } else {
-                        $('#js_attachment_table_container').find('tbody>tr:last() a').attr('href', '#').attr('target', null);
+                        $(container).find('tbody>tr:last() a').attr('href', '#').attr('target', null);
 
                         if (fls[i].type.includes('pdf')) {
-                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/pdf.png');
+                            $(container).find('tbody>tr:last() img').attr('src', '../Content/img/pdf.png');
 
                         } else if (fls[i].type.includes('msword')) {
-                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/word.png');
+                            $(container).find('tbody>tr:last() img').attr('src', '../Content/img/word.png');
 
                         } else if (fls[i].type.includes('excel')) {
-                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/excel.png');
+                            $(container).find('tbody>tr:last() img').attr('src', '../Content/img/excel.png');
 
                         } else {
-                            $('#js_attachment_table_container').find('tbody>tr:last() img').attr('src', '../Content/img/others.png');
+                            $(container).find('tbody>tr:last() img').attr('src', '../Content/img/others.png');
                         }
 
                     }
@@ -154,55 +168,66 @@
                     var dataTransfer = new DataTransfer();
                     dataTransfer.items.add(fls[i]);
 
-                    $('#js_attachment_table_container').find('tbody>tr:last() strong[name=title]').text(fls[i].name);
-                    $('#js_attachment_table_container').find('tbody>tr:last() input[type=file]')[0].files = dataTransfer.files;
+                    $(container).find('tbody>tr:last() strong[name=title]').text(fls[i].name);
+                    $(container).find('tbody>tr:last() input[type=file]')[0].files = dataTransfer.files;
 
                 }
             }
             $(this)[0].value = null; // clear
-
-
+            OnAttachmentUpdate(s)
         })
+
+        function OnAttachmentUpdate(s) {
+            var count = $(container).find('tr input[type=file]').length
+            $(container).find('.act2').addClass('disabled')
+            $(container).find('.act2')[0].disabled = true
+            $(container).find('.act2 span.badge').text(count)
+            if (count > 0) {
+                $(container).find('.act2').removeClass('disabled')
+                $(container).find('.act2')[0].disabled = false
+            }
+        }
 
         function OnRemovedItemClick(s) {
             $(s).parent().parent().remove()
+            OnAttachmentUpdate(s)
         }
 
         function OnAddAttachmentClick(s) {
-            $('#js_attachment_table_container').find('input[type=file]')[0].click()
+            $(container).find('input[type=file]')[0].click()
         }
 
         function AddNewTDRow(id) {
-            $('#js_attachment_table_container').find('tbody').append(`
-                <tr data-id="${id}">
-                    <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="OnRemovedItemClick(this)" style="border:none" data-bs-toggle="tooltip" data-placement="top" title="remove"><span class="fas fa-times-circle">X</span></button></td>
-                    <td>
-                        <a href="~/Content/img/word.png" target="_blank">
-                            <img src="~/Content/img/word.png" width="75" />
-                        </a>
-                    </td>
-                    <td class="p-2">
-                        <input name="file" style="display:none;" hidden type="file" accept="application/msword, application/vnd.ms-excel, text/plain, application/pdf, image/*">
-                        <small><strong name="title"></strong> </small><br />
-                        <small><strong>File size:</strong> 193.10kb</small><br />
-                        <small><strong>File type:</strong> .xlsx</small>
-                    </td>
-                    <td class="p-2">
-                        <input name="description" type="text" placeholder="description" class="form-control form-control-sm" style="border-style:dashed" onfocus="this.select();" onmouseup="return false;" />
-                    </td>
-                    <td>
-                        <div class="d-flex flex-row" style="font-size:small;">
-                            <div class="me-2">
-                                <small>
-                                    <strong class="themefont text-uppercase">SAMPLE NAME</strong><br />
-                                    @DateTime.Now.ToString()
-                                </small>
+            $(container).find('tbody').append(`
+                    <tr data-id="${id}">
+                        <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="OnRemovedItemClick(this)" style="border:none" data-bs-toggle="tooltip" data-placement="top" title="remove"><span class="fas fa-times-circle">X</span></button></td>
+                        <td>
+                            <a href="~/Content/img/word.png" target="_blank">
+                                <img class="img-thumbnail" src="~/Content/img/word.png" width="100" />
+                            </a>
+                        </td>
+                        <td class="p-2">
+                            <input name="file" style="display:none;" hidden type="file" accept="application/msword, application/vnd.ms-excel, text/plain, application/pdf, image/*">
+                            <small><strong name="title"></strong> </small><br />
+                            <small><strong>File size:</strong> 193.10kb</small><br />
+                            <small><strong>File type:</strong> .xlsx</small>
+                        </td>
+                        <td class="p-2">
+                            <input name="description" type="text" placeholder="description" class="form-control form-control-sm" style="border-style:dashed" onfocus="this.select();" onmouseup="return false;" />
+                        </td>
+                        <td>
+                            <div class="d-flex flex-row" style="font-size:small;">
+                                <div class="me-2">
+                                    <small>
+                                        <strong class="themefont text-uppercase"> </strong><br />
+                                        <span></span>
+                                    </small>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="text-center" data-bs-toggle="tooltip" data-placement="top" title="hold and drag to reorder">☰</td>
-                </tr>
-            `)
+                        </td>
+                        <td class="text-center" data-bs-toggle="tooltip" data-placement="top" title="hold and drag to reorder">☰</td>
+                    </tr>
+                `)
         }
 
     </script>
