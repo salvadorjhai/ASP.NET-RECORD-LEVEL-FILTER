@@ -193,7 +193,7 @@ function onMoveToLevelButtonClicked(sender) {
 
     swal2({
         title: `Update Status?`,
-        html: `Are you sure you want to move and update the status to <b>${moveToTitle}</b>`,
+        html: `Are you sure you want to move and update the status to <b class="text-uppercase">${moveToTitle}</b>`,
         icon: 'warning',
         dangerMode: true,
     }, () => {
@@ -278,8 +278,8 @@ var statuslevelfilter = new StatusLevelFilter({
         },
         {
             id: 2,
-            status: "For Checking",
-            name: "Submit",
+            status: "Checked",
+            name: "Check",
             btnclass: `btn btn-outline-primary`,
             badgeclass: `badge bg-primary`,
             backclass: `btn btn-danger`,
@@ -293,6 +293,7 @@ var statuslevelfilter = new StatusLevelFilter({
             badgeclass: `badge bg-primary`,
             backclass: `btn btn-danger`,
             moveclass: `btn btn-success`,
+            display: 0,
         },
         {
             id: 9,
@@ -305,7 +306,7 @@ var statuslevelfilter = new StatusLevelFilter({
         },
         {
             id: 5,
-            status: "Cancelled/Deleted",
+            status: "Cancelled",
             name: "Cancel",
             btnclass: `btn btn-outline-danger`,
             badgeclass: `badge bg-danger`,
@@ -324,9 +325,15 @@ statuslevelfilter.allowed_movement = [
         backlevel: 1,
         movelevel: 1,
     },
-    // can submit
+    // can Check
     {
         id: 2,
+        backlevel: 1,
+        movelevel: 1,
+    },
+    // can Endorsed
+    {
+        id: 3,
         backlevel: 1,
         movelevel: 1,
     },
