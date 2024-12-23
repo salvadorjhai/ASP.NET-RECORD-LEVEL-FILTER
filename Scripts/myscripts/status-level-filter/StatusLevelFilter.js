@@ -32,6 +32,8 @@ class StatusLevelFilter {
             var ap = this.approval_levels[i]
             if (ap.display == null) { ap.display = 1; }
             if (ap.iscancelled == null) { ap.iscancelled = false; }
+            if (ap.return_label == null) { ap.return_label = `Return to ${ap.name}`; }
+            if (ap.levelup_label == null) { ap.levelup_label = ap.name; }
             if (ap.display != 0) {
                 l1.push(`<button type="button" class="${ap.btnclass}" data-filter="${ap.id}">${ap.status} <span class="${ap.badgeclass}">0</span></button>`)
             }
@@ -112,7 +114,7 @@ class StatusLevelFilter {
                     if (this.IsBackButtonAllowed(l1[0])) {
                         l2.push(`
                             <button type="button" class="${l1[0].backclass}" data-filter="backlevel" data-value="${l1[0].id}" data-value-text="${l1[0].status}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Return back to ${l1[0].name}...">
-                            <span class="fas fa-arrow-circle-left"></span> Return to ${l1[0].name}</button>
+                            <span class="fas fa-arrow-circle-left"></span> ${l1[0].return_label}</button>
                     `)
                     }
 
@@ -120,7 +122,7 @@ class StatusLevelFilter {
                     if (this.IsMoveButtonAllowed(l1[1])) {
                         l2.push(`
                         <button type="button" class="${l1[1].moveclass}" data-filter="movelevel" data-value="${l1[1].id}" data-value-text="${l1[1].status}" data-title="${l1[1].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${l1[1].name}...">
-                        <span class="fas fa-arrow-circle-right"></span> ${l1[1].name}</button>
+                        <span class="fas fa-arrow-circle-right"></span> ${l1[1].levelup_label}</button>
                     `)
                     }
 
@@ -137,7 +139,7 @@ class StatusLevelFilter {
                         if (this.IsBackButtonAllowed(ap)) {
                             l2.push(`
                                 <button type="button" class="${ap.backclass}" data-filter="backlevel" data-value="${ap.id}" data-value-text="${ap.status}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Return back to ${ap.name}">
-                                <span class="fas fa-arrow-circle-left"></span> Return to ${ap.name}</button>
+                                <span class="fas fa-arrow-circle-left"></span> ${l1[0].return_label}</button>
                         `)
                         }
 
@@ -146,7 +148,7 @@ class StatusLevelFilter {
                         if (this.IsMoveButtonAllowed(ap)) {
                             l2.push(`
                             <button type="button" class="${ap.moveclass}" data-filter="movelevel" data-value="${ap.id}" data-value-text="${ap.status}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${ap.name}">
-                            <span class="fas fa-arrow-circle-right"></span> ${ap.name}</button>
+                            <span class="fas fa-arrow-circle-right"></span> ${ap.levelup_label}</button>
                         `)
                         }
 
@@ -164,7 +166,7 @@ class StatusLevelFilter {
                         // move to
                         l3.push(`
                         <button type="button" class="${cx.moveclass}" data-filter="movelevel" data-value="${cx.id}" data-value-text="${cx.status}" data-title="${cx.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${cx.name}...">
-                        <span class="fas fa-trash-alt"></span> ${cx.name}</button>
+                        <span class="fas fa-trash-alt"></span> ${cx.levelup_label}</button>
                     `)
                     }
                 }
