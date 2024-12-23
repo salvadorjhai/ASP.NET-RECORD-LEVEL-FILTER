@@ -56,6 +56,10 @@ class StatusLevelFilter {
             $(parent).find('button[data-filter]').on('click', (e) => {
                 this.onLevelFilterClicked(e.currentTarget.dataset.filter)
             });
+
+            // default level text
+            this.default_level_text = this.approval_levels.find((x) => x.id == this.default_level).status;
+
             // click initial
             this.onLevelFilterClicked(this.default_level)
         }
@@ -83,10 +87,12 @@ class StatusLevelFilter {
             var index = this.approval_levels.findIndex(level => level.id === statuslvl)
 
             if (index + 1 == this.approval_levels.length) {
-                l1.push(this.approval_levels[0]) // was last
+                var ap = this.approval_levels[0];
+                l1.push(ap) // was last
 
             } else if (index > 0) {
-                l1.push(this.approval_levels[index - 1]) // previous
+                var ap = this.approval_levels[index - 1];
+                l1.push(ap) // previous
             }
 
             if (index !== -1 && index < this.approval_levels.length - 1) {
@@ -102,18 +108,18 @@ class StatusLevelFilter {
             if (l1.length > 0) {
 
                 if (l1.length == 2) {
-                    // back to                  
+                    // back to
                     if (this.IsBackButtonAllowed(l1[0])) {
                         l2.push(`
-                            <button type="button" class="${l1[0].backclass}" data-filter="backlevel" data-value="${l1[0].id}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Return back to ${l1[0].name}...">
+                            <button type="button" class="${l1[0].backclass}" data-filter="backlevel" data-value="${l1[0].id}" data-value-text="${l1[0].status}" data-title="${l1[0].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Return back to ${l1[0].name}...">
                             <span class="fas fa-arrow-circle-left"></span> Return to ${l1[0].name}</button>
-                        `)
+                    `)
                     }
 
                     // move to
                     if (this.IsMoveButtonAllowed(l1[1])) {
                         l2.push(`
-                        <button type="button" class="${l1[1].moveclass}" data-filter="movelevel" data-value="${l1[1].id}" data-title="${l1[1].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${l1[1].name}...">
+                        <button type="button" class="${l1[1].moveclass}" data-filter="movelevel" data-value="${l1[1].id}" data-value-text="${l1[1].status}" data-title="${l1[1].name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${l1[1].name}...">
                         <span class="fas fa-arrow-circle-right"></span> ${l1[1].name}</button>
                     `)
                     }
@@ -130,17 +136,16 @@ class StatusLevelFilter {
                         // back to first
                         if (this.IsBackButtonAllowed(ap)) {
                             l2.push(`
-                                <button type="button" class="${ap.backclass}" data-filter="backlevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Return back to ${ap.name}">
+                                <button type="button" class="${ap.backclass}" data-filter="backlevel" data-value="${ap.id}" data-value-text="${ap.status}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Return back to ${ap.name}">
                                 <span class="fas fa-arrow-circle-left"></span> Return to ${ap.name}</button>
-                            `)
+                        `)
                         }
-
 
                     } else {
                         // move to
                         if (this.IsMoveButtonAllowed(ap)) {
                             l2.push(`
-                            <button type="button" class="${ap.moveclass}" data-filter="movelevel" data-value="${ap.id}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${ap.name}">
+                            <button type="button" class="${ap.moveclass}" data-filter="movelevel" data-value="${ap.id}" data-value-text="${ap.status}" data-title="${ap.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${ap.name}">
                             <span class="fas fa-arrow-circle-right"></span> ${ap.name}</button>
                         `)
                         }
@@ -158,7 +163,7 @@ class StatusLevelFilter {
                     if (cx != null) {
                         // move to
                         l3.push(`
-                        <button type="button" class="${cx.moveclass}" data-filter="movelevel" data-value="${cx.id}" data-title="${cx.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${cx.name}...">
+                        <button type="button" class="${cx.moveclass}" data-filter="movelevel" data-value="${cx.id}" data-value-text="${cx.status}" data-title="${cx.name}" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Update status to ${cx.name}...">
                         <span class="fas fa-trash-alt"></span> ${cx.name}</button>
                     `)
                     }
@@ -173,6 +178,11 @@ class StatusLevelFilter {
                                 ${l3.filter(Boolean).join("")}
                             </div>
                         `)
+
+                $('#js-level-update').find('button[data-filter]').each((i, e) => {
+                    $(e).removeClass('btn-sm')
+                    $(e).addClass('btn-sm')
+                })
 
                 $(parent).find('button[data-filter]').on('click', (e) => {
                     this.onMoveToLevelButtonClicked_Handler(e.currentTarget)
@@ -232,6 +242,8 @@ class StatusLevelFilter {
 
     onLevelFilterClicked(level) {
         this.active_filter = level
+        this.active_filter_text = this.approval_levels.find((x) => x.id == Number(level)).status
+
         this.setActiveLevelFilterOn(this.active_filter)
         // reload datatable
         this.onLevelFilterClicked_Handler()
