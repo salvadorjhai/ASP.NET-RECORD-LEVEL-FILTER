@@ -123,12 +123,49 @@
         });
 
         var container = $('#js_attachment_table_container')
+
+        // attach
         $(container).on('click', '.act1', function () {
-            OnAddAttachmentClick(this)
+            OnAddAttachmentClick(this) 
         })
+
+        // upload
         $(container).on('click', '.act2', function () {
-            
+            if ($('tr[data-id] input[type=file]').length) {
+                var formData = new FormData()
+
+                $('tr[data-id]:has(input[type=file])').each((i, e) => {
+                    var fl = $(e).find('input[type=file]')[0].files[0]
+                    var desc = $(e).find('textarea')
+
+                    formData.append(`file[${i}]`, fl)
+                    formData.append(`description[${i}]`, desc)
+                })
+
+                $.ajax({
+                    type: "POST",
+                    url: "/fileupload/upload",
+                    data: formData,
+                    contentType: false, // Important for multipart form data
+                    processData: false, // Don't process data automatically
+                    complete: function (jqXHR, textStatus) {
+                        
+                    },
+                    success: function (response, textStatus, jqXHR) {
+                        console.log(jqXHR)
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR)
+                    }
+                });
+
+
+            }
+
+
         })
+
+        // on content changed
         $(container).on('change', 'input[type=file]', function (s) {
             var fls = $(this)[0].files
             if (fls.length > 0) {
@@ -213,7 +250,7 @@
                             <small><strong>File type:</strong> .xlsx</small>
                         </td>
                         <td class="p-2">
-                            <input name="description" type="text" placeholder="description" class="form-control form-control-sm" style="border-style:dashed" onfocus="this.select();" onmouseup="return false;" />
+                            <textarea name="description" placeholder="description" class="form-control form-control-sm" style="border-style:dashed" onfocus="this.select();" onmouseup="return false;"></textarea>
                         </td>
                         <td>
                             <div class="d-flex flex-row" style="font-size:small;">

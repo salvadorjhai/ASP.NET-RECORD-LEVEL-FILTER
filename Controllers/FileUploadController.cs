@@ -12,11 +12,20 @@ namespace WebAppTemplate.Controllers
         [HttpPost]
         public ActionResult Upload()
         {
+            var files = Request.Files;
+            var form = Request.Form;
+         
             return Content("Uploaded", "application/json");
         }
 
         [HttpGet]
         public ActionResult Download()
+        {
+            return Content("Uploaded", "application/json");
+        }
+
+        [HttpGet]
+        public ActionResult Delete()
         {
             return Content("Uploaded", "application/json");
         }
