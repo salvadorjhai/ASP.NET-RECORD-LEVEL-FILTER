@@ -112,3 +112,13 @@ function ShowSwalLoader(title = 'Please wait...', text = 'Your request is being 
 function CloseSwalLoader() {
     Swal.close()
 }
+
+function Notify(title,body) {
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            new Notification(title, {
+                body: body,
+            });
+        };
+    })
+}
