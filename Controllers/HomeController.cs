@@ -35,5 +35,11 @@ namespace WebAppTemplate.Controllers
 
             return View();
         }
+
+        public ActionResult FileImport()
+        {
+            return View();
+        }
+
     }
 }

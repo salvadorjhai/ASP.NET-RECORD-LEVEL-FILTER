@@ -1,0 +1,116 @@
+﻿@{
+    ViewBag.Title = "File Import";
+}
+
+<main>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4><span class="fas fa-tags fs-6"></span> @ViewBag.Title <small>(import file *.csv, *.xlsx, *.xls)</small> </h4>
+                </div>
+                <div class="card-body">
+
+                    <div class="btn-group" id="js-crud">
+                        <button type="button" class="btn btn-icon icon-left btn-primary text-uppercase mb-3" onclick="showFileSelector()"><span class="fas fa-plus-square"></span> Load Excel/CSV</button>
+                    </div>
+
+                    <input name="fileselector" style="display:none;" hidden type="file" accept="application/vnd.ms-excel, text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+
+                    <div id="tablecontainer">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+@section scripts{
+
+    <script>
+
+        $(function () {
+
+        })
+
+        function showFileSelector() {
+            $(`input[name=fileselector]`)[0].click()
+        }    
+
+        $(`input[name=fileselector]`).change(function () {
+            var file = $(this)[0].files[0]
+            console.log(file)
+
+
+            var formData = new FormData()
+            formData.append(`file`, file)
+
+            $.ajax({
+                type: "POST",
+                url: "/FileImport/Read",
+                data: formData,
+                contentType: false, // Important for multipart form data
+                processData: false, // Don't process data automatically
+                complete: function (jqXHR, textStatus) {
+                    $(this)[0].value = null;
+                },
+                success: function (response, textStatus, jqXHR) {
+                    if (response.data != null) {
+                        displaysheet(response.data);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR)
+                }
+            });
+        })
+
+        function displaysheet(js) {
+            var header = Object.keys(js[0])
+            var th = [];
+            header.forEach(function (x) {
+                th.push(`<th>${x.trim()}</th>`)
+            })
+
+            var tr = [];
+            js.forEach(function (x, y) {
+                var kv = Object.values(x);
+                var td = [];
+                kv.forEach(function (x) {
+                    td.push(`<td>${x.trim()}</td>`)
+                })
+                tr.push(`<tr>${td.join("")}</tr>`);
+            })
+
+            var table = `
+             <table class="table table-hover table-sm" id="_dynamic" style="width:100%">
+                <thead>
+                    <tr class="bg-primary text-white text-uppercase">
+                        ${th.join("")}
+                    </tr>
+                </thead>
+                <tbody>${tr.join("")}</tbody>
+            </table>
+            `
+
+            $('#tablecontainer').empty();
+            $('#tablecontainer').append(table);
+
+            $('#_dynamic').DataTable().destroy();
+            $('#_dynamic').DataTable({
+                pageLength: 5,
+                lengthMenu: [
+                    [5, 10, 30, 50, -1],
+                    [" 5", 10, 30, 50, "All"]
+                ],
+                autoWidth: true,
+            });
+
+        }
+
+    </script>
+}
