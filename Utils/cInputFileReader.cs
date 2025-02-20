@@ -1,19 +1,20 @@
 ﻿using CsvHelper;
-using Microsoft.Ajax.Utilities;
 using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
-using System.Web;
 
 namespace WebAppTemplate.Utils
 {
     public class cInputFileReader
     {
+        /// <summary>
+        /// Load Excel File using EPPlus (v4.5.1) (specific versioned required)
+        /// </summary>
+        /// <param name="fs"></param>
+        /// <returns></returns>
         public List<Dictionary<string, object>> LoadExcel(Stream fs)
         {
             ExcelPackage oBook = new ExcelPackage(fs);
@@ -25,6 +26,7 @@ namespace WebAppTemplate.Utils
                 var headers = new List<string>();
                 for (int i = 1; i < oSheet.Dimension.End.Column; i++)
                 {
+                    if (oSheet.Cells[1, i].Value == null) { continue; }
                     string cell = oSheet.Cells[1, i].Value.ToString();
                     headers.Add(cell);
                 }
@@ -48,6 +50,11 @@ namespace WebAppTemplate.Utils
             return null; // on error
         }
 
+        /// <summary>
+        /// load CSV file using CSVHelper (v2.16.3) (specific versioned required)
+        /// </summary>
+        /// <param name="fs"></param>
+        /// <returns></returns>
         public List<Dictionary<string, object>> LoadCSV(Stream fs)
         {
             using (var reader = new StreamReader(fs))

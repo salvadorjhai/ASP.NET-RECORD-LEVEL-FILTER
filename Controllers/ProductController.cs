@@ -6,6 +6,7 @@ using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using WebAppTemplate.Models;
+using WebAppTemplate.Utils;
 
 namespace WebAppTemplate.Controllers
 {
@@ -48,6 +49,7 @@ namespace WebAppTemplate.Controllers
             return Content(JsonConvert.SerializeObject(new { data = model }), "application/json");
         }
 
+        [ValidateAntiForgeryTokenAjax]
         public ActionResult Upsert(Product update)
         {
             var js = System.IO.File.ReadAllText(Server.MapPath("~/App_Data/product.json"), new UTF8Encoding(false));

@@ -41,10 +41,9 @@
             $(`input[name=fileselector]`)[0].click()
         }    
 
-        $(`input[name=fileselector]`).change(function () {
+        $(`input[name=fileselector]`).change(function () {        
             var file = $(this)[0].files[0]
-            console.log(file)
-
+            if (file == null) { return; }
 
             var formData = new FormData()
             formData.append(`file`, file)

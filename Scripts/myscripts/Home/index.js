@@ -39,7 +39,7 @@ function initProductTable() {
             error: function (errormessage) {
                 toastError("Error!", "Failed to load datatable ...")
             }
-        },
+        },       
         pageLength: 5,
         order: [[1, "asc"]], // index based
         lengthMenu: [
@@ -68,7 +68,7 @@ function initProductTable() {
                 "aTargets": [0], // target column
                 "bSortable": false,
                 "mRender": function (data, type, full, meta) {
-                    return `<button class="btn btn-primary btn-sm btnRowEdit" style="font-size:smaller;" id="vw_${full.id}" data-id="${full.id}" onclick="showEditProductModal(${full.id})"> <span class="fas fa-edit"></span> VIEW</button> `;
+                    return `<button class="btn btn-primary btn-sm btnRowEdit" style="font-size:smaller;" id="vw_${full.id}" data-id="${full.id}" onclick="showEditProductModal(this,${full.id})"> <span class="fas fa-edit"></span> VIEW</button> `;
                 },
                 "className": "text-center text-uppercase"
             }
@@ -89,13 +89,18 @@ function showProductModal() {
     statuslevelfilter.BuildMoveToButtons(0)
 }
 
-function showEditProductModal(id) {
-
+function showEditProductModal(sender, id) {
+    $(sender).addClass('btn-progress');
     $.ajax({
         url: "/product/getbyid/?id=" + id,
         type: "GET",
         contentType: "application/json;charset=UTF-8",
         dataType: "json",
+        complete: function (jqXHR, textStatus) {
+            setTimeout(() => {
+                $(sender).removeClass('btn-progress');
+            }, 300);
+        },
         success: function (result, textStatus, jqXHR) {
             if (result.data != null) {
                 fillProductForm(result.data);
@@ -138,12 +143,18 @@ function saveProductForm() {
         ProductPrice: _.toNumber($('#ProductPrice').val())
     }
 
+    var token = $('input[name="__RequestVerificationToken"]').val();
+
     $.ajax({
         url: "/product/upsert",
         data: JSON.stringify(model),
         type: "POST",
         contentType: "application/json;charset=UTF-8",
         dataType: "json",
+        headers: {
+            'RequestVerificationToken': token,
+            '_': btoa(JSON.stringify(model)),
+        },
         success: function (response, textStatus, jqXHR) {
             var msg;
             if (response.result == null) {

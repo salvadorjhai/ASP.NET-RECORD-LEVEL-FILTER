@@ -136,7 +136,7 @@
 
                 $('tr[data-id]:has(input[type=file])').each((i, e) => {
                     var fl = $(e).find('input[type=file]')[0].files[0]
-                    var desc = $(e).find('textarea')
+                    var desc = $(e).find('textarea').val()
 
                     formData.append(`file[${i}]`, fl)
                     formData.append(`description[${i}]`, desc)

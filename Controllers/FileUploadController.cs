@@ -15,19 +15,19 @@ namespace WebAppTemplate.Controllers
             var files = Request.Files;
             var form = Request.Form;
          
-            return Content("Uploaded", "application/json");
+            return Content("Uploaded", "application/text");
         }
 
         [HttpGet]
         public ActionResult Download()
         {
-            return Content("Uploaded", "application/json");
+            return Content("Uploaded", "application/text");
         }
 
         [HttpGet]
         public ActionResult Delete()
         {
-            return Content("Uploaded", "application/json");
+            return Content("Uploaded", "application/text");
         }
 
     }
